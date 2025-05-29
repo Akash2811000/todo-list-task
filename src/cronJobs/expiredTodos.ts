@@ -2,7 +2,8 @@ import cron from "node-cron";
 import Todo from "../models/todo.model";
 
 export const createExpiredTodosCronJob = (
-  cronExpression: string = "*/30 * * * * *" // run after 30 second
+  // cronExpression: string = "*/30 * * * * *" // run after 30 second
+  cronExpression: string = "0 0 * * *"
 ) => {
   return cron.schedule(cronExpression, async () => {
     try {

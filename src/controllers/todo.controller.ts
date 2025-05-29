@@ -1,7 +1,8 @@
 import { Response } from "express";
+import { FilterQuery } from "mongoose";
+import { validationError } from "../helpers/response";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import Todo, { ITodo } from "../models/todo.model";
-import { FilterQuery } from "mongoose";
 
 export const createTodo = async (
   req: AuthRequest,
@@ -9,16 +10,43 @@ export const createTodo = async (
 ): Promise<void> => {
   try {
     const { title, description, dueDate } = req.body;
+    const errors: Record<string, string> = {};
 
     if (!title) {
-      res.status(400).json({ message: "Title is required" });
+      errors.title = "Title is required";
+    }
+
+    if (dueDate === undefined || dueDate === null) {
+      errors.dueDate = "Due date is required";
+    } else {
+      let timestamp = Number(dueDate);
+      if (timestamp < 1e12) {
+        timestamp *= 1000;
+      }
+      const parsedDate = new Date(timestamp);
+
+      if (isNaN(timestamp) || isNaN(parsedDate.getTime())) {
+        errors.dueDate =
+          "Due date must be a valid Unix timestamp in milliseconds";
+      } else {
+        const now = new Date();
+        if (parsedDate <= now) {
+          errors.dueDate = "Due date must be in the future";
+        }
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      validationError(res, errors);
       return;
     }
+
+    const parsedDate = new Date(Number(dueDate));
 
     const todo = await Todo.create({
       title,
       description,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      dueDate: parsedDate,
       user: req.userId,
     });
 
@@ -37,7 +65,7 @@ export const getTodos = async (
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
-    const { completed, overdue } = req.query;
+    const { completed } = req.query;
 
     const filter: FilterQuery<ITodo> = {
       user: req.userId!,
@@ -45,20 +73,29 @@ export const getTodos = async (
 
     if (completed !== undefined) {
       filter.completed = completed === "true";
+
+      if (typeof completed === "string") {
+        if (completed === "true" || completed === "false") {
+          filter.completed = completed === "true";
+        } else {
+          res
+            .status(400)
+            .json({
+              message:
+                "Invalid value for 'completed'. Must be 'true' or 'false'.",
+            });
+          return;
+        }
+      }
+
+      const todos = await Todo.find(filter).sort({ createdAt: -1 });
+
+      res.json({
+        message: "Todos retrieved successfully",
+        count: todos.length,
+        todos,
+      });
     }
-
-    if (overdue === "true") {
-      filter.dueDate = { $lt: new Date() };
-      filter.completed = false;
-    }
-
-    const todos = await Todo.find(filter).sort({ createdAt: -1 });
-
-    res.json({
-      message: "Todos retrieved successfully",
-      count: todos.length,
-      todos,
-    });
   } catch (err) {
     res.status(500).json({ message: "Failed to retrieve todos", error: err });
   }
@@ -89,18 +126,41 @@ export const updateTodo = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const { title, description, dueDate, completed } = req.body;
+    const { title, description, dueDate } = req.body;
 
     const updateData: Partial<
-      Pick<ITodo, "title" | "description" | "dueDate" | "completed">
+      Pick<ITodo, "title" | "description" | "dueDate">
     > = {};
+
+    const errors: Record<string, string> = {};
 
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
+
     if (dueDate !== undefined) {
-      updateData.dueDate = dueDate ? new Date(dueDate) : undefined;
+      let timestamp = Number(dueDate);
+      if (timestamp < 1e12) {
+        timestamp *= 1000;
+      }
+      const parsedDate = new Date(timestamp);
+
+      if (isNaN(timestamp) || isNaN(parsedDate.getTime())) {
+        errors.dueDate =
+          "Due date must be a valid Unix timestamp in milliseconds";
+      } else {
+        const now = new Date();
+        if (parsedDate <= now) {
+          errors.dueDate = "Due date must be in the future";
+        } else {
+          updateData.dueDate = parsedDate;
+        }
+      }
     }
-    if (completed !== undefined) updateData.completed = completed;
+
+    if (Object.keys(errors).length > 0) {
+      validationError(res, errors);
+      return;
+    }
 
     const todo = await Todo.findOneAndUpdate(
       { _id: id, user: req.userId },
