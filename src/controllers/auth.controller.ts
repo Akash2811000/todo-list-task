@@ -5,15 +5,7 @@ import { generateToken } from "../helpers/token";
 import User from "../models/user.model";
 import { validateEmail, validatePassword } from "../utils/validators";
 
-interface AuthBody {
-  email: string;
-  password: string;
-}
-
-export const signup = async (
-  req: Request<{}, {}, AuthBody>,
-  res: Response
-): Promise<void> => {
+export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -22,15 +14,18 @@ export const signup = async (
         email: !email ? "Email is required" : undefined,
         password: !password ? "Password is required" : undefined,
       });
+      return;
     }
 
     if (!validateEmail(email)) {
       validationError(res, { email: "Invalid email address" });
+      return;
     }
 
     const passwordErrors = validatePassword(password);
     if (passwordErrors.length > 0) {
       validationError(res, { password: passwordErrors });
+      return;
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -39,6 +34,7 @@ export const signup = async (
         message: "Registration failed",
         errors: { email: "An account with this email already exists" },
       });
+      return;
     }
 
     const hashed = await bcrypt.hash(password, 12);
@@ -67,16 +63,14 @@ export const signup = async (
         errors[key] = err.errors[key].message;
       });
       validationError(res, errors);
+      return;
     }
 
     serverError(res, err);
   }
 };
 
-export const login = async (
-  req: Request<{}, {}, AuthBody>,
-  res: Response
-): Promise<void> => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 

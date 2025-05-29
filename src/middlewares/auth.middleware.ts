@@ -11,6 +11,11 @@ export const authMiddleware = (
   next: NextFunction
 ): void => {
   try {
+    // #swagger.tags = ['Todo']
+    // #swagger.summary = 'Get protected data'
+    /* #swagger.security = [{
+        "Bearer": []
+    }] */
     const token = req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {

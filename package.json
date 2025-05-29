@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "swagger-autogen": "node src/swagger/swagger.js"
   },
   "keywords": [],
   "author": "",
@@ -16,13 +17,16 @@
     "express": "^5.1.0",
     "mongoose": "^8.15.1",
     "bcryptjs": "^3.0.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
     "tsx": "^4.19.4",
     "@types/mongoose": "^5.11.96",
     "typescript": "^5.8.3",
-    "@types/jsonwebtoken": "^9.0.9"
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/swagger-ui-express": "^4.1.6"
   }
 }
