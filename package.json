@@ -19,7 +19,8 @@
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "swagger-autogen": "^2.23.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "node-cron": "^4.0.7"
   },
   "devDependencies": {
     "@types/express": "^5.0.2",
@@ -27,6 +28,7 @@
     "@types/mongoose": "^5.11.96",
     "typescript": "^5.8.3",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/swagger-ui-express": "^4.1.6"
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/node-cron": "^3.0.11"
   }
 }
