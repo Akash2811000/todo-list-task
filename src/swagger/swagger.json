@@ -32,16 +32,6 @@
     "application/json"
   ],
   "paths": {
-    "/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/auth/signup": {
       "post": {
         "description": "",
@@ -133,9 +123,6 @@
           "201": {
             "description": "Created"
           },
-          "400": {
-            "description": "Bad Request"
-          },
           "401": {
             "description": "Unauthorized"
           },
@@ -160,16 +147,14 @@
             "name": "completed",
             "in": "query",
             "type": "string"
-          },
-          {
-            "name": "overdue",
-            "in": "query",
-            "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
@@ -246,9 +231,6 @@
                   "example": "any"
                 },
                 "dueDate": {
-                  "example": "any"
-                },
-                "completed": {
                   "example": "any"
                 }
               }

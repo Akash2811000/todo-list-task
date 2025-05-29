@@ -78,24 +78,22 @@ export const getTodos = async (
         if (completed === "true" || completed === "false") {
           filter.completed = completed === "true";
         } else {
-          res
-            .status(400)
-            .json({
-              message:
-                "Invalid value for 'completed'. Must be 'true' or 'false'.",
-            });
+          res.status(400).json({
+            message:
+              "Invalid value for 'completed'. Must be 'true' or 'false'.",
+          });
           return;
         }
       }
-
-      const todos = await Todo.find(filter).sort({ createdAt: -1 });
-
-      res.json({
-        message: "Todos retrieved successfully",
-        count: todos.length,
-        todos,
-      });
     }
+
+    const todos = await Todo.find(filter).sort({ createdAt: -1 });
+
+    res.json({
+      message: "Todos retrieved successfully",
+      count: todos.length,
+      todos,
+    });
   } catch (err) {
     res.status(500).json({ message: "Failed to retrieve todos", error: err });
   }
