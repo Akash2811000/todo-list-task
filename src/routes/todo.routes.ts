@@ -1,21 +1,42 @@
 import { Router } from "express";
 import {
   createTodo,
-  getTodos,
-  getTodoById,
-  updateTodo,
   deleteTodo,
+  getTodoById,
+  getTodos,
   toggleTodo,
+  updateTodo,
 } from "../controllers/todo.controller";
-import { authMiddleware } from "../middlewares/auth.middleware";
+import {
+  authMiddleware
+} from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.use(authMiddleware);
-
-router.post("/", createTodo);
-router.get("/", getTodos);
+// router.use(
+//   authMiddleware({
+//     authHeaderRequired: true,
+//     permissionsRequired: ["admin"],
+//   })
+// );
+router.get(
+  "/",
+  authMiddleware({
+    authHeaderRequired: true,
+    permissionsRequired: ["user"],
+  }),
+  getTodos
+);
 router.get("/:id", getTodoById);
+
+router.post(
+  "/",
+  authMiddleware({
+    authHeaderRequired: true,
+    permissionsRequired: ["user", "admin"],
+  }),
+  createTodo
+);
 router.put("/:id", updateTodo);
 router.delete("/:id", deleteTodo);
 router.patch("/:id/toggle", toggleTodo);

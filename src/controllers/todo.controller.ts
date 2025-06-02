@@ -49,10 +49,12 @@ export const createTodo = async (
       dueDate: parsedDate,
       user: req.userId,
     });
-
-    res.status(201).json({ message: "Todo created successfully", todo });
+    console.log("todo", todo);
+    return res.status(201).json({ message: "Todo created successfully", todo });
+    return;
   } catch (err) {
     res.status(500).json({ message: "Failed to create todo", error: err });
+    return;
   }
 };
 

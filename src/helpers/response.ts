@@ -9,3 +9,7 @@ export const serverError = (res: Response, err: any) => {
     .status(500)
     .json({ message: "Internal server error. Please try again later." });
 };
+
+export const response = (res: Response, message: string, data?: any) => {
+  return res.status(200).json({ message });
+};
